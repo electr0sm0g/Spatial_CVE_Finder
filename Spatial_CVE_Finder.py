@@ -5,6 +5,17 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+print("")
+print("################################################")
+print("----------------Spatial_CVE_Finder--------------")
+print("################################################")
+print("----------------Bordel-Spatial-V1---------------")
+print("################################################")
+print("------------Test by: Etienne Lacoche------------")
+print("---------Contact Twitter: @electr0sm0g----------")
+print("################################################")
+print("")
+
 # Define GitHub API URLs and authentication token
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_API_TOKEN = ''  # Replace with your token
