@@ -18,10 +18,10 @@ print("")
 
 # Define GitHub API URLs and authentication token
 GITHUB_API_URL = "https://api.github.com"
-GITHUB_API_TOKEN = ''  # Replace this with your GitHub API key
+GITHUB_API_TOKEN = 'your_github_token'  # Replace with your GitHub API key
 
-mail = ""
-password = ""  # Use the app-specific password here
+mail = "your_email@example.com"  # Use your email address
+password = "your_app_specific_password"  # Use the app-specific password here
 
 headers = {
     'Authorization': f'token {GITHUB_API_TOKEN}',
@@ -64,7 +64,7 @@ def issue_exists(conn, issue_url):
 def send_email(subject, body, to_email):   
     msg = MIMEMultipart()
     msg['From'] = mail
-    msg['To'] = mail
+    msg['To'] = to_email
     msg['Subject'] = subject
     
     msg.attach(MIMEText(body, 'plain'))
@@ -72,9 +72,9 @@ def send_email(subject, body, to_email):
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
         server.login(mail, password)  # Use app password here
-        server.sendmail(mail, mail, msg.as_string())
+        server.sendmail(mail, to_email, msg.as_string())
     
-    print("E-mail sent to", mail)
+    print("E-mail sent to", to_email)
 
 # Function to check and manage GitHub API rate limit
 def check_rate_limit():
@@ -153,15 +153,16 @@ def get_all_labeled_issues(query, labels):
     
     if all_labeled_issues:
         print(f"\nTotal issues found: {len(all_labeled_issues)}")
-        # Prepare the email body with all issues
+        
+        # Generate the email body with all the issues found
         email_body = "\n\n".join([
-            f"Repository: {issue['repo_name']}\n"  # Use the correct key here (repo_name if that's what you have)
+            f"Repository: {issue['repository']['full_name']}\n"
             f"Issue: {issue['html_url']}\n"
             f"Labels: {', '.join([label['name'] for label in issue.get('labels', [])])}\n\n"
             for issue in all_labeled_issues
         ])
-        #email_body = "\n\n".join([f"Repository: {issue['repository']['full_name']}\nIssue: {issue['html_url']}\nLabels: {', '.join([label['name'] for label in issue['labels']])}\n\n" for issue in all_labeled_issues])
-        send_email("All Labeled Issues Found", email_body, mail)
+        
+        send_email("New Issues Found", email_body, mail)  # Send email with the issue details
     else:
         print("No labeled issues found.")
 
