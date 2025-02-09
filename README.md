@@ -144,7 +144,7 @@ labels = [
 ]
 
 for term in search_terms:
-    get_all_labeled_issues(term, labels)```
+    get_all_labeled_issues(term, labels)
 
 ## Handling Errors
 
