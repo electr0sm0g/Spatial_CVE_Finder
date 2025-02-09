@@ -1,6 +1,6 @@
 # Spatial_CVE_Finder
 
-Little GitHub Scraper Tool for Finding CVEs More Easily
+Little GitHub Scraper Tool for Finding CVEs in Aerospace More Easily
 
 ![](https://github.com/electr0sm0g/Spatial_CVE_Finder/blob/main/Screenshot%202025-02-09%20at%2018.15.20.png)
 
