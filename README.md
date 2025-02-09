@@ -10,7 +10,7 @@
 
 ### Description
 
-**Spatial_CVE_Finder** is a tool designed to scrape GitHub repositories for issues related to Common Vulnerabilities and Exposures (CVE) in aerospace-related projects. The tool looks for GitHub issues labeled with specific security-related terms (e.g., "critical bug," "vulnerability," "security risk") and sends an email notification if any relevant issues are found.
+**Spatial_CVE_Finder** is a tool designed to scrape GitHub repositories for issues related to vulnerabilities in aerospace-related projects. The tool looks for GitHub issues labeled with specific security-related terms (e.g., "critical bug," "vulnerability," "security risk") and sends an email notification if any relevant issues are found.
 
 This project is useful for cybersecurity researchers, aerospace engineers, and developers who need to stay on top of vulnerabilities in the space sector. The tool automates the process of searching for vulnerabilities, saving time and effort in manually monitoring relevant repositories.
 
@@ -31,7 +31,7 @@ This project is useful for cybersecurity researchers, aerospace engineers, and d
 
 You can install the required packages using pip:
 
-pip install requests
+pip install requests sqlite3 smtplib
 
 
 ### Setup
