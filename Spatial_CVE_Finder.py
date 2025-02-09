@@ -160,9 +160,9 @@ def get_all_labeled_issues(query, labels):
 if __name__ == "__main__":
     search_terms = [
         "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
-        "nanosatellites", "cubesat", "space mission", "satellite communications",
+        "nanosatellites", "space mission", "satellite communications",
         "ground station", "space telemetry", "orbital simulation",
-        "satellite security", "satellite software vulnerabilities", "cybersecurity", "GNSS"
+        "satellite security", "satellite software vulnerabilities", , "GNSS"
     ]
     
     labels = [
