@@ -40,7 +40,7 @@ pip install requests sqlite3 smtplib
    
    Clone the repository to your local machine:
    
-git clone https://github.com/your-username/Spatial_CVE_Finder.git cd Spatial_CVE_Finder
+git clone https://github.com/electr0sm0g/Spatial_CVE_Finder.git cd Spatial_CVE_Finder
 
 
 2. **GitHub API Token**:
