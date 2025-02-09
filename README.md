@@ -3,7 +3,7 @@ Spatial_CVE_Finder aka Bordel_Spatial_V1
 
 Contact Twitter: @electr0sm0g
 
-![Alt text](Screenshot 2025-02-09 at 18.15.20.png)
+![](https://github.com/electr0sm0g/Spatial_CVE_Finder/blob/main/Screenshot%202025-02-09%20at%2018.15.20.png)
 
 # List of keywords related to satellites or software satellites
 search_terms = [
