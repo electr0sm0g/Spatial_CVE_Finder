@@ -12,7 +12,7 @@
 
 **Spatial_CVE_Finder** is a tool designed to scrape GitHub repositories for issues related to vulnerabilities in aerospace-related projects. The tool looks for GitHub issues labeled with specific security-related terms (e.g., "critical bug," "vulnerability," "security risk") and sends an email notification if any relevant issues are found.
 
-This project is useful for cybersecurity researchers, aerospace engineers, and developers who need to stay on top of vulnerabilities in the space sector. The tool automates the process of searching for vulnerabilities, saving time and effort in manually monitoring relevant repositories.
+This project is useful for cybersecurity researchers, aerospace engineers, and developers who need to stay informed about vulnerabilities in the aerospace-related sector. The tool automates the process of searching for vulnerabilities, saving time and effort in manually monitoring relevant repositories.
 
 ### Features
 
