@@ -64,7 +64,7 @@ def issue_exists(conn, issue_url):
 def send_email(subject, body, to_email):   
     msg = MIMEMultipart()
     msg['From'] = mail
-    msg['To'] = to_email
+    msg['To'] = mail
     msg['Subject'] = subject
     
     msg.attach(MIMEText(body, 'plain'))
@@ -72,9 +72,9 @@ def send_email(subject, body, to_email):
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
         server.login(mail, password)  # Use app password here
-        server.sendmail(mail, to_email, msg.as_string())
+        server.sendmail(mail, mail, msg.as_string())
     
-    print("E-mail sent to", to_email)
+    print("E-mail sent to", mail)
 
 # Function to check and manage GitHub API rate limit
 def check_rate_limit():
