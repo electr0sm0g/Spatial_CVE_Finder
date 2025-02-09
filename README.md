@@ -110,7 +110,7 @@ The main function that orchestrates the entire process: searches repositories, r
 # How to Run
 To run the script, simply execute it from the command line:
 
-python github_issue_tracker.py
+python Spatial_CVE_Finder.py
 
 This will initiate the search for repositories and issues based on predefined keywords and labels.
 
