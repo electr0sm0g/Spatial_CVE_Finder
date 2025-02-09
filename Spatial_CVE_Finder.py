@@ -90,7 +90,7 @@ def get_all_labeled_issues(query, labels):
 
 # List of keywords related to satellites or software satellites
 search_terms = [
-    "cubesat", "nanosat", "nasa", 
+    "cubesat", "nanosat", 
     "software satellite", "software-defined satellite", 
     "software-defined radio", "software-controlled satellite", 
     "space software", "satellite software", 
