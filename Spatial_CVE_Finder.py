@@ -162,7 +162,7 @@ if __name__ == "__main__":
         "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
         "nanosatellites", "space mission", "satellite communications",
         "ground station", "space telemetry", "orbital simulation",
-        "satellite security", "satellite software vulnerabilities", , "GNSS"
+        "satellite security", "satellite software vulnerabilities", "GNSS"
     ]
     
     labels = [
