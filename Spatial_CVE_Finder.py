@@ -12,6 +12,7 @@ print("################################################")
 print("----------------Bordel-Spatial-V1---------------")
 print("################################################")
 print("------------Test by: Etienne Lacoche------------")
+print("---https://fr.linkedin.com/in/etiennelacoche----")
 print("---------Contact Twitter: @electr0sm0g----------")
 print("################################################")
 print("")
@@ -114,7 +115,6 @@ def search_repositories(query):
             print(f"Error retrieving repositories: {response.status_code}")
             break
     return repos
-
 # Function to retrieve issues with specified labels
 def get_labeled_issues(repo_full_name, labels, conn):
     issues = []
@@ -125,7 +125,12 @@ def get_labeled_issues(repo_full_name, labels, conn):
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             for issue in response.json():
+                # Debugging: Print the issue structure to understand its content
+                print("DEBUGGING: Issue structure: ", issue)  
+                
+                # Extract labels from the issue correctly
                 issue_labels = [label['name'].lower() for label in issue.get('labels', [])]
+                
                 if any(label in issue_labels for label in labels):
                     if not issue_exists(conn, issue['html_url']):
                         insert_issue(conn, repo_full_name, issue['html_url'], ', '.join(issue_labels), issue['state'])
@@ -156,7 +161,7 @@ def get_all_labeled_issues(query, labels):
         
         # Generate the email body with all the issues found
         email_body = "\n\n".join([
-            f"Repository: {issue['repository']['full_name']}\n"
+            f"Repository: {issue['html_url']}\n"  # Use issue URL for repo info (or adjust as needed)
             f"Issue: {issue['html_url']}\n"
             f"Labels: {', '.join([label['name'] for label in issue.get('labels', [])])}\n\n"
             for issue in all_labeled_issues
