@@ -128,19 +128,20 @@ This will initiate the search for repositories and issues based on predefined ke
 
 ## Example Usage:
 
-search_terms = [
-    "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
-    "nanosatellites", "cubesat", "space mission", "satellite communications",
-    "ground station", "space telemetry", "orbital simulation",
-    "satellite security", "satellite software vulnerabilities", "cybersecurity", "GNSS"
-]
+    search_terms = [
+        "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
+        "nanosatellites", "space mission", "satellite communications",
+        "ground station", "space telemetry", "orbital simulation",
+        "satellite security", "satellite software vulnerabilities", , "GNSS"
+    ]
+    
+    labels = [
+        "bug", "critical bug", "security", "high priority", "security fix", 
+        "bugfix", "regression", "vulnerability", "security vulnerability", 
+        "high security risk", "needs fix", "exploit", "error", "defect", 
+        "privacy", "data breach"
+    ]
 
-labels = [
-    "bug", "critical bug", "security", "high priority", "security fix", 
-    "bugfix", "regression", "vulnerability", "security vulnerability", 
-    "high security risk", "needs fix", "exploit", "error", "defect", 
-    "privacy", "data breach"
-]
 
 for term in search_terms:
     get_all_labeled_issues(term, labels)
