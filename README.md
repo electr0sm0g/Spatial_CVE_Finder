@@ -6,164 +6,108 @@
 
 ## Contact Twitter: @electr0sm0g
 
-## GitHub Issue Tracker & Notification System
+# Spatial_CVE_Finder
 
-This Python-based project allows you to track issues labeled with "bug" or "security" across multiple GitHub repositories based on a search query. It handles rate limiting, checks if an issue already exists in the database, and sends email notifications when new issues are found.
+### Description
 
-## Features:
+**Spatial_CVE_Finder** is a tool designed to scrape GitHub repositories for issues related to Common Vulnerabilities and Exposures (CVE) in aerospace-related projects. The tool looks for GitHub issues labeled with specific security-related terms (e.g., "critical bug," "vulnerability," "security risk") and sends an email notification if any relevant issues are found.
 
-- Search GitHub repositories using keywords (e.g., cubesat, nanosat, nasa, satellite software).
-- Filter issues with specific labels like "bug" or "security".
-- Store issue details in a local SQLite database to avoid duplicates.
-- Send email notifications whenever a new "bug" or "security" issue is found.
+This project is useful for cybersecurity researchers, aerospace engineers, and developers who need to stay on top of vulnerabilities in the space sector. The tool automates the process of searching for vulnerabilities, saving time and effort in manually monitoring relevant repositories.
 
-## Handle GitHub API rate limits:
+### Features
 
-The script automatically checks and waits for the rate limit to reset if exceeded.
+- Searches for aerospace-related GitHub repositories based on keywords.
+- Filters GitHub issues based on specific labels related to security vulnerabilities (e.g., "security vulnerability", "high priority").
+- Automatically sends email notifications with details of any identified issues.
+- Stores found issues in a SQLite database to prevent duplicate processing.
+- Handles GitHub API rate limits and retries automatically.
 
-## Requirements
+---
 
-- Python 3.x
-- requests library (for interacting with GitHub API)
-- sqlite3 library (for database management)
-- smtplib (for email notifications)
+### Prerequisites
 
-To install the necessary dependencies, run:
+- **Python 3.x** or higher
+- Required Python packages: `requests`, `sqlite3`, `smtplib`
+
+You can install the required packages using pip:
 
 pip install requests
 
 
-## Setup
+### Setup
 
-### GitHub Personal Access Token:
-
-You need a GitHub personal access token for authentication. Generate it from your GitHub account settings.  
-Replace `GITHUB_API_TOKEN` in the script with your generated token.
-
-### Email Setup:
-
-Update the `send_email` function with your email credentials (`from_email`, `password`) to send notifications.  
-You can use an app-specific password for Gmail or other providers if necessary.
-
-### SQLite Database:
-
-The system uses a local SQLite database (`github_issues.db`) to store issue data and avoid processing duplicate issues.
-
-## How It Works
-
-### Search Repositories:
-
-The script searches repositories on GitHub based on specific keywords like cubesat, nanosat, nasa, etc.  
-It supports multiple search queries and can handle a list of terms.
-
-### Get Issues:
-
-For each repository found, the script fetches all open issues that have labels such as "bug" or "security".  
-The script ensures that issues are not processed again by checking if they already exist in the database.
-
-### Rate Limiting:
-
-The script automatically checks the current rate limit status of the GitHub API.  
-If the rate limit is reached, the script will wait for the reset time before proceeding with further requests.
-
-### Email Notifications:
-
-Whenever a new issue with the required label is found, the script sends an email notification to the specified email address.
-
-## Database Structure
-
-The SQLite database (`github_issues.db`) contains a table named `issues` with the following columns:
-
-- `id`: A unique identifier for each issue (primary key).
-- `repo_name`: The name of the repository where the issue was found.
-- `issue_url`: The URL of the issue.
-- `label`: The labels associated with the issue (e.g., "bug", "security").
-- `status`: The status of the issue (open or closed).
-
-## Code Walkthrough
-
-### `check_rate_limit()`
-
-This function checks the current rate limit from GitHub's API and waits if the limit is reached.
-
-### `search_repositories(query)`
-
-This function performs a search query on GitHub for repositories based on the search terms (like cubesat, nanosat).  
-It handles pagination to retrieve all repositories if there are more than 100 results.
-
-### `get_labeled_issues(repo_full_name, labels, conn)`
-
-For each repository, this function retrieves all open issues with specified labels (bug, security) from the repository.  
-It also checks if the issue is already stored in the database to avoid processing duplicates.  
-If a new issue is found, it sends an email notification.
-
-### `insert_issue(conn, repo_name, issue_url, label, status)`
-
-Inserts the new issue information into the database.
-
-### `issue_exists(conn, issue_url)`
-
-Checks if an issue is already stored in the database by comparing the issue URL.
-
-### `send_email(subject, body, to_email)`
-
-Sends an email notification when a new issue is found.
-
-### `init_db()`
-
-Initializes the SQLite database with the necessary table (`issues`) if it doesn’t already exist.
-
-### `get_all_labeled_issues(query, labels)`
-
-The main function that orchestrates the entire process: searches repositories, retrieves issues, and sends email notifications.
-
-## How to Run
-
-To run the script, simply execute it from the command line:
-
-python Spatial_CVE_Finder.py
+1. **Clone the repository**:
+   
+   Clone the repository to your local machine:
+   
+git clone https://github.com/your-username/Spatial_CVE_Finder.git cd Spatial_CVE_Finder
 
 
-This will initiate the search for repositories and issues based on predefined keywords and labels.
+2. **GitHub API Token**:
 
-## Example Usage:
+- You will need to create a GitHub API token for authentication.
+- Visit [GitHub Tokens](https://github.com/settings/tokens) and create a new personal access token with the `repo` and `read:org` scopes.
 
-    search_terms = [
-        "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
-        "nanosatellites", "space mission", "satellite communications",
-        "ground station", "space telemetry", "orbital simulation",
-        "satellite security", "satellite software vulnerabilities", "GNSS"
-    ]
-    
-    labels = [
-        "bug", "critical bug", "security", "high priority", "security fix", 
-        "bugfix", "regression", "vulnerability", "security vulnerability", 
-        "high security risk", "needs fix", "exploit", "error", "defect", 
-        "privacy", "data breach"
-    ]
+Replace `your_github_token` in the code with your generated API token.
+
+3. **Email Setup**:
+
+The script sends email notifications using SMTP. For Gmail:
+- Enable **"Less Secure Apps"** or use an **App-Specific Password**.
+- Replace `your_email@example.com` and `your_app_specific_password` in the script with your email and app-specific password.
+
+4. **Running the Script**:
+
+To run the tool, simply execute the script:
+
+python spatial_cve_finder.py
 
 
-for term in search_terms:
-    get_all_labeled_issues(term, labels)
+The tool will start searching for relevant GitHub issues based on the specified terms and labels, and it will send email notifications if any matching issues are found.
 
-## Handling Errors
+---
 
-Rate Limiting: If the rate limit is reached, the script waits until the limit is reset.
+### How It Works
 
-Database: If an issue already exists in the database, it will not be processed again.
+1. **Searching Repositories**:
+The tool searches GitHub for repositories related to aerospace and satellite software by using keywords such as "cubesat", "satellite security", and "space telemetry".
 
-Email: If the email cannot be sent, an error message will be displayed.
+2. **Checking for Labeled Issues**:
+It looks for issues with security-related labels like "critical bug", "security", and "high priority". If an issue with one of these labels is found, it is logged and saved in an SQLite database.
 
-## Future Improvements
+3. **Email Notification**:
+Once relevant issues are identified, an email containing the details of these issues is sent to the user’s email address.
 
-Multi-threading: To speed up the processing of repositories and issues, you could add multi-threading or multiprocessing.
+4. **Database Management**:
+All identified issues are stored in a local SQLite database to avoid duplicate entries.
 
-Enhanced Notifications: You could add support for multiple notification types (e.g., Slack, SMS) or configure different email templates for different types of issues.
+---
 
-Error Logging: Implement a logging system to track errors and retries.
+### Configuration
 
-Command-Line Interface (CLI): A more advanced user interface that allows for better customization of search queries, labels, and email settings.
+- **Search Terms**: Modify the `search_terms` list to include any additional keywords related to aerospace projects you want to track.
+- **Labels**: Customize the `labels` list to include any other issue labels you want to filter on.
+- **Email**: Ensure you update the `mail` and `password` variables with your email and app-specific password for sending notifications.
 
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+---
+
+### Contributing
+
+Contributions are welcome! Feel free to fork the repository, open issues, and submit pull requests.
+
+---
+
+### License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+### Author
+
+- **Etienne Lacoche**
+  - [LinkedIn](https://fr.linkedin.com/in/etiennelacoche)
+  - Twitter: [@electr0sm0g](https://twitter.com/electr0sm0g)
+
+
 
