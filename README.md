@@ -128,7 +128,6 @@ This will initiate the search for repositories and issues based on predefined ke
 
 ## Example Usage:
 
-```python
 search_terms = [
     "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
     "nanosatellites", "cubesat", "space mission", "satellite communications",
