@@ -18,7 +18,11 @@ print("")
 
 # Define GitHub API URLs and authentication token
 GITHUB_API_URL = "https://api.github.com"
-GITHUB_API_TOKEN = ''  # Replace with your token
+GITHUB_API_TOKEN = ''  # Replace this with your GitHub API key
+
+mail = ""
+password = ""  # Use the app-specific password here
+
 headers = {
     'Authorization': f'token {GITHUB_API_TOKEN}',
     'User-Agent': 'Mozilla/5.0'
@@ -57,13 +61,9 @@ def issue_exists(conn, issue_url):
     ''', (issue_url,))
     return cursor.fetchone() is not None
 
-# Function to send an email notification
-def send_email(subject, body, to_email):
-    from_email = "your_email@example.com"
-    password = "your_email_password"  # Replace with your password or use an app-specific password
-    
+def send_email(subject, body, to_email):   
     msg = MIMEMultipart()
-    msg['From'] = from_email
+    msg['From'] = mail
     msg['To'] = to_email
     msg['Subject'] = subject
     
@@ -71,10 +71,10 @@ def send_email(subject, body, to_email):
     
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login(from_email, password)
-        server.sendmail(from_email, to_email, msg.as_string())
+        server.login(mail, password)  # Use app password here
+        server.sendmail(mail, to_email, msg.as_string())
     
-    print("Email sent to", to_email)
+    print("E-mail sent to", to_email)
 
 # Function to check and manage GitHub API rate limit
 def check_rate_limit():
@@ -129,8 +129,7 @@ def get_labeled_issues(repo_full_name, labels, conn):
                 if any(label in issue_labels for label in labels):
                     if not issue_exists(conn, issue['html_url']):
                         insert_issue(conn, repo_full_name, issue['html_url'], ', '.join(issue_labels), issue['state'])
-                        issues.append(issue['html_url'])
-                        send_email("New Issue Found", f"Issue: {issue['html_url']}", "your_email@example.com")
+                        issues.append(issue)
             if 'next' in response.links:
                 url = response.links['next']['url']
             else:
@@ -154,6 +153,9 @@ def get_all_labeled_issues(query, labels):
     
     if all_labeled_issues:
         print(f"\nTotal issues found: {len(all_labeled_issues)}")
+        # Prepare the email body with all issues
+        email_body = "\n\n".join([f"Repository: {issue['repository']['full_name']}\nIssue: {issue['html_url']}\nLabels: {', '.join([label['name'] for label in issue['labels']])}\n\n" for issue in all_labeled_issues])
+        send_email("All Labeled Issues Found", email_body, mail)
     else:
         print("No labeled issues found.")
 
