@@ -154,7 +154,13 @@ def get_all_labeled_issues(query, labels):
     if all_labeled_issues:
         print(f"\nTotal issues found: {len(all_labeled_issues)}")
         # Prepare the email body with all issues
-        email_body = "\n\n".join([f"Repository: {issue['repository']['full_name']}\nIssue: {issue['html_url']}\nLabels: {', '.join([label['name'] for label in issue['labels']])}\n\n" for issue in all_labeled_issues])
+        email_body = "\n\n".join([
+            f"Repository: {issue['repo_name']}\n"  # Use the correct key here (repo_name if that's what you have)
+            f"Issue: {issue['html_url']}\n"
+            f"Labels: {', '.join([label['name'] for label in issue.get('labels', [])])}\n\n"
+            for issue in all_labeled_issues
+        ])
+        #email_body = "\n\n".join([f"Repository: {issue['repository']['full_name']}\nIssue: {issue['html_url']}\nLabels: {', '.join([label['name'] for label in issue['labels']])}\n\n" for issue in all_labeled_issues])
         send_email("All Labeled Issues Found", email_body, mail)
     else:
         print("No labeled issues found.")
