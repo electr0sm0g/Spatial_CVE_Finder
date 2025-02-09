@@ -46,7 +46,7 @@ def issue_exists(conn, issue_url):
     ''', (issue_url,))
     return cursor.fetchone() is not None
 
-# Fonction pour envoyer une notification par e-mail
+# Fonction pour envoyer une notification par e-mail (groupé)
 def send_email(subject, body, to_email):
     from_email = "your_email@example.com"
     password = "your_email_password"  # Remplacez par votre mot de passe ou utilisez un mot de passe spécifique à l'application
@@ -119,7 +119,6 @@ def get_labeled_issues(repo_full_name, labels, conn):
                     if not issue_exists(conn, issue['html_url']):
                         insert_issue(conn, repo_full_name, issue['html_url'], ', '.join(issue_labels), issue['state'])
                         issues.append(issue['html_url'])
-                        send_email("Nouveau problème trouvé", f"Problème : {issue['html_url']}", "votre_email@example.com")
             if 'next' in response.links:
                 url = response.links['next']['url']
             else:
@@ -141,7 +140,14 @@ def get_all_labeled_issues(query, labels):
         labeled_issues = get_labeled_issues(repo_full_name, labels, conn)
         all_labeled_issues.extend(labeled_issues)
     
+    # Envoyer un e-mail groupé avec tous les problèmes trouvés
     if all_labeled_issues:
+        email_body = "\n".join(all_labeled_issues)
+        send_email(
+            "Résumé des problèmes GitHub trouvés", 
+            f"Voici tous les problèmes labellisés trouvés :\n\n{email_body}", 
+            "votre_email@example.com"
+        )
         print(f"\nTotal des problèmes trouvés : {len(all_labeled_issues)}")
     else:
         print("Aucun problème labellisé trouvé.")
@@ -151,7 +157,7 @@ if __name__ == "__main__":
         "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
         "nanosatellites", "cubesat", "space mission", "satellite communications",
         "ground station", "space telemetry", "orbital simulation",
-        "satellite security", "satellite software vulnerabilities", "cybersecurity", "GNSS"
+        "satellite security", "satellite software vulnerabilities", "GNSS"
     ]
     
     labels = [
