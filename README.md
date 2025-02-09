@@ -132,7 +132,7 @@ This will initiate the search for repositories and issues based on predefined ke
         "cubesat", "nanosat", "satellite software", "space software", "software-defined satellite",
         "nanosatellites", "space mission", "satellite communications",
         "ground station", "space telemetry", "orbital simulation",
-        "satellite security", "satellite software vulnerabilities", , "GNSS"
+        "satellite security", "satellite software vulnerabilities", "GNSS"
     ]
     
     labels = [
