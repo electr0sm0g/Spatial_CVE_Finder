@@ -1,119 +1,165 @@
 import requests
+import time
+import sqlite3
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-print("")
-print("################################################")
-print("----------------Spatial_CVE_Finder--------------")
-print("################################################")
-print("----------------Bordel-Spatial-V1---------------")
-print("################################################")
-print("------------Test by: Etienne Lacoche------------")
-print("---------Contact Twitter: @electr0sm0g----------")
-print("################################################")
-print("")
-
-# Define GitHub API URL
+# Définir les URL de l'API GitHub et la clé d'authentification
 GITHUB_API_URL = "https://api.github.com"
-
-# Your GitHub personal access token
-GITHUB_API_TOKEN = ''  # Replace with your actual token
+GITHUB_API_TOKEN = ''  # Remplacez par votre token
 headers = {
     'Authorization': f'token {GITHUB_API_TOKEN}',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0'
 }
 
-# Function to search repositories with a query on GitHub
+# Connexion à la base de données SQLite
+def init_db():
+    conn = sqlite3.connect('github_issues.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS issues (
+        id INTEGER PRIMARY KEY,
+        repo_name TEXT,
+        issue_url TEXT,
+        label TEXT,
+        status TEXT
+    )
+    ''')
+    conn.commit()
+    return conn
+
+# Fonction pour insérer un problème dans la base de données
+def insert_issue(conn, repo_name, issue_url, label, status):
+    cursor = conn.cursor()
+    cursor.execute('''
+    INSERT INTO issues (repo_name, issue_url, label, status)
+    VALUES (?, ?, ?, ?)
+    ''', (repo_name, issue_url, label, status))
+    conn.commit()
+
+# Fonction pour vérifier si le problème existe déjà dans la base de données
+def issue_exists(conn, issue_url):
+    cursor = conn.cursor()
+    cursor.execute('''
+    SELECT * FROM issues WHERE issue_url = ?
+    ''', (issue_url,))
+    return cursor.fetchone() is not None
+
+# Fonction pour envoyer une notification par e-mail
+def send_email(subject, body, to_email):
+    from_email = "your_email@example.com"
+    password = "your_email_password"  # Remplacez par votre mot de passe ou utilisez un mot de passe spécifique à l'application
+    
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    
+    msg.attach(MIMEText(body, 'plain'))
+    
+    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+        server.starttls()
+        server.login(from_email, password)
+        server.sendmail(from_email, to_email, msg.as_string())
+    
+    print("E-mail envoyé à", to_email)
+
+# Fonction pour vérifier et gérer le quota de l'API GitHub
+def check_rate_limit():
+    url = "https://api.github.com/rate_limit"
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        remaining = data['resources']['core']['remaining']
+        reset_time = data['resources']['core']['reset']
+        if remaining == 0:
+            # Si les requêtes restantes sont 0, on attend jusqu'à ce que la limite se réinitialise
+            reset_time = reset_time - time.time()  # Calcul du temps restant jusqu'à la réinitialisation
+            print(f"Taux de requêtes épuisé. Attente de {int(reset_time)} secondes...")
+            time.sleep(reset_time + 10)  # Attendre un peu plus longtemps pour s'assurer de la réinitialisation
+        else:
+            print(f"Il vous reste {remaining} requêtes avant la limite.")
+    else:
+        print(f"Erreur de récupération du quota de requêtes: {response.status_code}")
+        time.sleep(60)  # Attente en cas d'erreur de récupération du quota
+
+# Fonction pour rechercher des dépôts sur GitHub
 def search_repositories(query):
     repos = []
     url = f"{GITHUB_API_URL}/search/repositories?q={query}&type=repositories&per_page=100"
     
     while url:
+        check_rate_limit()  # Vérifier et gérer le taux de requêtes
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             search_results = response.json()
-            repos.extend(search_results['items'])  # Add the repositories from the current page
-            if 'next' in response.links:
-                url = response.links['next']['url']  # Get next page if available
-            else:
-                break
-        else:
-            print(f"Failed to fetch repositories: {response.status_code}")
-            break
-    
-    return repos
-
-# Function to get open issues with 'bug' or 'security' labels from a repository
-def get_labeled_issues(repo_full_name, labels):
-    issues = []
-    url = f"{GITHUB_API_URL}/repos/{repo_full_name}/issues?state=open"  # Only fetch open issues
-    
-    while url:
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            for issue in response.json():
-                # Check if the issue has any of the specified labels
-                issue_labels = [label['name'].lower() for label in issue.get('labels', [])]
-                if any(label in issue_labels for label in labels):
-                    issues.append(issue['html_url'])
-            # Check for pagination to get all issues
+            repos.extend(search_results['items'])
             if 'next' in response.links:
                 url = response.links['next']['url']
             else:
                 break
         else:
-            print(f"Failed to fetch issues for {repo_full_name}: {response.status_code}")
+            print(f"Erreur lors de la récupération des dépôts : {response.status_code}")
             break
+    return repos
+
+# Fonction pour récupérer les problèmes avec les étiquettes spécifiées
+def get_labeled_issues(repo_full_name, labels, conn):
+    issues = []
+    url = f"{GITHUB_API_URL}/repos/{repo_full_name}/issues?state=open"
     
+    while url:
+        check_rate_limit()  # Vérifier et gérer le taux de requêtes
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            for issue in response.json():
+                issue_labels = [label['name'].lower() for label in issue.get('labels', [])]
+                if any(label in issue_labels for label in labels):
+                    if not issue_exists(conn, issue['html_url']):
+                        insert_issue(conn, repo_full_name, issue['html_url'], ', '.join(issue_labels), issue['state'])
+                        issues.append(issue['html_url'])
+                        send_email("Nouveau problème trouvé", f"Problème : {issue['html_url']}", "votre_email@example.com")
+            if 'next' in response.links:
+                url = response.links['next']['url']
+            else:
+                break
+        else:
+            print(f"Erreur lors de la récupération des problèmes pour {repo_full_name}: {response.status_code}")
+            break
     return issues
 
-# Main function to get all labeled issues for all repositories from the search result
+# Fonction principale pour récupérer toutes les issues labellisées et mettre à jour la base de données
 def get_all_labeled_issues(query, labels):
-    all_labeled_issues = []
-    
-    # Step 1: Search repositories based on the query
+    conn = init_db()
     repos = search_repositories(query)
     
-    # Step 2: Get all issues with the specified labels for each repository
+    all_labeled_issues = []
     for repo in repos:
-        repo_full_name = repo['full_name']  # e.g., 'owner/repo_name'
-        print(f"Fetching open {', '.join(labels)} issues for repository: {repo_full_name}")
-        labeled_issues = get_labeled_issues(repo_full_name, labels)
+        repo_full_name = repo['full_name']
+        print(f"Recherche des problèmes ouverts dans {repo_full_name}...")
+        labeled_issues = get_labeled_issues(repo_full_name, labels, conn)
         all_labeled_issues.extend(labeled_issues)
     
-    # Step 3: Write the URLs to a text file
     if all_labeled_issues:
-        with open(f"{query}_open_issues.txt", "w") as file:
-            for issue_url in all_labeled_issues:
-                file.write(issue_url + "\n")
-        print(f"\nAll labeled open issues URLs have been written to '{query}_open_issues.txt'.")
+        print(f"\nTotal des problèmes trouvés : {len(all_labeled_issues)}")
     else:
-        print(f"No open labeled issues found for {', '.join(labels)}.")
+        print("Aucun problème labellisé trouvé.")
 
-# List of keywords related to satellites or software satellites
-search_terms = [
-    "cubesat", "nanosat", 
-    "software satellite", "software-defined satellite", 
-    "software-defined radio", "software-controlled satellite", 
-    "space software", "satellite software", 
-    "satellite simulation", "satellite system design", 
-    "spacecraft software", "mission control software",
-    "embedded systems satellite", "embedded satellite software",
-    "satellite firmware", "space software architecture", 
-    "space robotics software", "communications satellite software",
-    "navigation satellite software", "earth observation satellite software",
-    "military satellite software", "navigation software satellite", 
-    "AI satellite software", "autonomous satellite software", 
-    "satellite machine learning", "satellite AI", "edge computing satellite"
-]
-
-# Expanded list of labels related to security or bugs
-labels = [
-    "bug", "security", "security vulnerability", "critical", "high priority", 
-    "vulnerability", "security fix", "bug fix", "urgent", "fix", "patch"
-]  # The labels to search for
-
-# Query for each term and collect open issues
 if __name__ == "__main__":
-    for query in search_terms:
-        print(f"\nSearching for open issues with {', '.join(labels)} labels in repositories for '{query}'...")
-        get_all_labeled_issues(query, labels)
-
+    search_terms = [
+        "satellite software", "space software", "software-defined satellite",
+        "nanosatellites", "cubesat", "space mission", "satellite communications",
+        "ground station", "space telemetry", "orbital simulation",
+        "satellite security", "satellite software vulnerabilities", "cybersecurity", "GNSS"
+    ]
+    
+    labels = [
+        "bug", "critical bug", "security", "high priority", "security fix", 
+        "bugfix", "regression", "vulnerability", "security vulnerability", 
+        "high security risk", "needs fix", "exploit", "error", "defect", 
+        "privacy", "data breach"
+    ]
+    
+    for term in search_terms:
+        get_all_labeled_issues(term, labels)
