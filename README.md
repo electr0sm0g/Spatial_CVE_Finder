@@ -1,6 +1,8 @@
 # Spatial_CVE_Finder
 Spatial_CVE_Finder aka Bordel_Spatial_V1
 
+Contact Twitter: @electr0sm0g
+
 # List of keywords related to satellites or software satellites
 search_terms = [
     "cubesat", "nanosat", "nasa", 
