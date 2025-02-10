@@ -178,7 +178,7 @@ if __name__ == "__main__":
     ]
     
     labels = [
-        "critical bug", "security", "high priority", "security fix", 
+        "bug", "security", "high priority", "security fix", 
         "bugfix", "regression", "vulnerability", "security vulnerability", 
         "high security risk", "needs fix", "exploit", "error", "defect", 
         "privacy", "data breach"
